@@ -1,0 +1,35 @@
+#board {
+    width: 400px;
+    height: 400px;
+
+    margin: 0 auto;
+
+    border: 1px solid red;
+}
+
+#board div.col {
+    width: 50px;
+    height: 50px;
+
+    float: left;
+}
+
+#board div.row {
+    float: left;
+
+    margin: 0;
+}
+
+#board div.row.odd div.col.odd,
+#board div.row.even div.col.even {
+    background: #000;
+}
+#board div.row.odd div.col.even,
+#board div.row.even div.col.odd {
+    background: #FFF;
+}
+
+#board div.row div.col.odd.hovered,
+#board div.row div.col.even.hovered {
+    background: blue;
+}
