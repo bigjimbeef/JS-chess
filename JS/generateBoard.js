@@ -23,9 +23,11 @@ function generateBoard() {
             eCol.data('column', j);
 
             $(eCol).hover(
-                function() {
-                    var sTarget = $('#playerTurn').text() != 'black' ? "hover" : "hover-black"
-                    $(this).addClass(sTarget);
+                function(event) {
+                    if ( !$(event.target).hasClass('piece') ) {
+                        var sTarget = $('#playerTurn').text() != 'black' ? "hover" : "hover-black";
+                        $(this).addClass(sTarget);                       
+                    }
                 }, 
                 function() {
                     $(this).removeClass('hover hover-black');

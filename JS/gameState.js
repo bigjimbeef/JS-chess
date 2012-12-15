@@ -49,13 +49,16 @@ function bindPieceEvents() {
             var eSelectedPiece = $($('#piece-selection').data('selected'));
             var eParent = eSelectedPiece.parent();
 
-            var iPieceRC = getCellRC($(eSelectedPiece));
+            var pieceRC = getCellRC($(eSelectedPiece));
             $(this).append('<div></div>');
-            var iTargetRC = getCellRC($(this).find('div'));
+            var targetRC = getCellRC($(this).find('div'));
             $(this).find('div').remove();
 
-            var iRowDiff = iTargetRC.row - iPieceRC.row;
-            var iColDiff = iTargetRC.col - iPieceRC.col;
+            // Generate the move.
+            generateMoveNotation(pieceRC, targetRC)
+
+            var iRowDiff = targetRC.row - pieceRC.row;
+            var iColDiff = targetRC.col - pieceRC.col;
 
             var iXOffset = iColDiff * 52.5;
             var iYOffset = iRowDiff * 52.5;
@@ -82,6 +85,60 @@ function bindPieceEvents() {
             });
         }
     });
+}
+
+function getRowColAsNotation(rowCol) {
+    var iRow = rowCol.row;
+
+    var aCols = ["a","b","c","d","e","f","g","h"];
+    var iCol = aCols[rowCol.col - 1];
+
+    return {
+        row: iRow,
+        col: iCol
+    }
+}
+
+function generateMoveNotation(sourceRowCol, destRowCol) {
+    var src = getRowColAsNotation(sourceRowCol);
+    var dest = getRowColAsNotation(destRowCol);
+
+    var eCell = getBoardCell(sourceRowCol.row, sourceRowCol.col);
+    var eTarget = getBoardCell(destRowCol.row, destRowCol.col);
+    var sCapture = ( typeof eTarget.find('.piece').data('piece') != "undefined" ) ? "x" : "";
+
+    var ePiece = eCell.find('.piece');
+    var sPiece = "";
+    if ( ePiece.data('piece') && ePiece.data('piece') != "pawn" ) {
+        switch(ePiece.data('piece')){
+            case "rook":
+                sPiece = "R";
+                break;
+            case "bishop":
+                sPiece = "B";
+                break;
+            case "knight":
+                sPiece = "N";
+                break;
+            case "queen":
+                sPiece = "Q";
+                break;
+            case "king":
+                sPiece = "K";
+                break;
+            default:
+                console.error("Invalid piece!");
+                break;
+        }
+    }
+    var sMove = sPiece + src.col + sCapture + src.row 
+                + " " 
+                + sPiece + dest.col + sCapture + dest.row;
+
+    var eLi = $("<li></li>");
+    eLi.text(sMove);
+
+    eLi.appendTo($('#movelist ol'));
 }
 
 function changeTurn() {
@@ -129,7 +186,7 @@ function highlightSingleMove(ePiece, move) {
 }
 
 function removeHighlighting() {
-    $('#board .col.highlight').removeClass('highlight hovered');
+    $('#board .col.highlight').removeClass('highlight hover');
 
     $('#piece-selection').data('selected', null);
 }
