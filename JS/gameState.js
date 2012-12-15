@@ -41,10 +41,33 @@ function bindPieceEvents() {
             var eSelectedPiece = $($('#piece-selection').data('selected'));
             var eParent = eSelectedPiece.parent();
 
-            $(this).append(eSelectedPiece.clone(true));
-            eParent.html('');
+            var iPieceRC = getCellRC($(eSelectedPiece));
+            $(this).append('<div></div>');
+            var iTargetRC = getCellRC($(this).find('div'));
+            $(this).find('div').remove();
 
-            removeHighlighting();
+            var iRowDiff = iTargetRC.row - iPieceRC.row;
+            var iColDiff = iTargetRC.col - iPieceRC.col;
+
+            var iXOffset = iColDiff * 52.5;
+            var iYOffset = iRowDiff * 52.5;
+
+            var that = this;
+            $(eSelectedPiece).addClass('moving');
+            $(eSelectedPiece).animate({
+                bottom: iYOffset,
+                left: iXOffset
+            }, 500, function() {
+                $(eSelectedPiece).css('bottom', 0);
+                $(eSelectedPiece).css('left', 0);
+                $(eSelectedPiece).removeClass('moving');
+                $(eSelectedPiece).stop();
+
+                $(that).append(eSelectedPiece.clone(true));
+                eParent.html('');
+
+                removeHighlighting();
+            });
         }
     });
 }
@@ -79,7 +102,7 @@ function highlightSingleMove(ePiece, move) {
 }
 
 function removeHighlighting() {
-    $('#board .col.highlight').removeClass('highlight');
+    $('#board .col.highlight').removeClass('highlight hovered');
 
     $('#piece-selection').data('selected', null);
 }

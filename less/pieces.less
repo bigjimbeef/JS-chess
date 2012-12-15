@@ -1,8 +1,10 @@
 .piece {
     text-align: center;
-    line-height: 50px;
     height: 50px;
+    width: 50px;
     color: #FF0000;
+
+    position: absolute;
 
     &.black {
         &.pawn {
@@ -44,5 +46,9 @@
         &.king {
             background: url(../img/whiteKing.png);
         }
+    }
+
+    &.moving {
+        z-index: 10;
     }
 }

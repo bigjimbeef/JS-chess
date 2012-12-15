@@ -59,7 +59,9 @@ h1 {
 
         .border;
 
-        &.hovered {
+        position: relative;
+
+        &:hover {
             .hover;
         }
 
@@ -93,7 +95,7 @@ h1 {
 }
 
 #board.blue {
-    div.col.hovered {
+    div.col:hover {
         .hoverBlue;
     }
     div.row {
@@ -121,7 +123,7 @@ h1 {
 }
 
 #board.red {
-    div.col.hovered {
+    div.col:hover {
         .hoverRed;
     }
     div.row {

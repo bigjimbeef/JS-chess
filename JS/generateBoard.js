@@ -22,23 +22,9 @@ function generateBoard() {
             eCol.addClass(sOddEven);
             eCol.data('column', j);
 
-            eCol.bindCellEvents();
-
             eRow.append(eCol);
         }
 
         eBoard.append(eRow);
     }
-}
-
-$.fn.bindCellEvents = function () {
-    $(this).unbind('hover');
-    $(this).hover(
-        function() {
-            $(this).addClass('hovered');
-        },
-        function() {
-            $(this).removeClass('hovered');
-        }
-    );
 }
