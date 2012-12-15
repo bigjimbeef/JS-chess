@@ -61,13 +61,14 @@ function bindPieceEvents() {
             var iYOffset = iRowDiff * 52.5;
 
             $(eParent).trigger('mouseout');
+            removeHighlighting();
 
             var that = this;
             $(eSelectedPiece).addClass('moving');
             $(eSelectedPiece).animate({
                 bottom: iYOffset,
                 left: iXOffset
-            }, 5000, function() {
+            }, 500, function() {
                 $(eSelectedPiece).css('bottom', 0);
                 $(eSelectedPiece).css('left', 0);
                 $(eSelectedPiece).removeClass('moving');
@@ -75,8 +76,6 @@ function bindPieceEvents() {
 
                 $(that).append(eSelectedPiece.clone(true));
                 eParent.html('');
-
-                removeHighlighting();
 
                 // Swipsy swopsy.
                 changeTurn();
