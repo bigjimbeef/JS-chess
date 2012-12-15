@@ -24,10 +24,11 @@ function generateBoard() {
 
             $(eCol).hover(
                 function() {
-                    $(this).addClass('hover');
+                    var sTarget = $('#playerTurn').text() != 'black' ? "hover" : "hover-black"
+                    $(this).addClass(sTarget);
                 }, 
                 function() {
-                    $(this).removeClass('hover');
+                    $(this).removeClass('hover hover-black');
                 }
             );
 
