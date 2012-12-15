@@ -22,6 +22,15 @@ function generateBoard() {
             eCol.addClass(sOddEven);
             eCol.data('column', j);
 
+            $(eCol).hover(
+                function() {
+                    $(this).addClass('hover');
+                }, 
+                function() {
+                    $(this).removeClass('hover');
+                }
+            );
+
             eRow.append(eCol);
         }
 

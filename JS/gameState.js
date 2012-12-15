@@ -2,6 +2,9 @@ function debug() {
     console.log(arguments);
 }
 
+bWhiteTurn = true;
+iTurnNum = 0;
+
 $(document).ready(function() {
 
     generateBoard();
@@ -15,6 +18,11 @@ $(document).ready(function() {
 
 function bindPieceEvents() {
     $('#board').on('click', '.piece', function() {
+        if ( bWhiteTurn && $(this).data('col') == "black"
+         || !bWhiteTurn && $(this).data('col') == "white" ) {
+            return;
+        }
+
         if ( !$('#piece-selection').data('selected') ) {
             debug("There is a piece");
 
@@ -52,12 +60,14 @@ function bindPieceEvents() {
             var iXOffset = iColDiff * 52.5;
             var iYOffset = iRowDiff * 52.5;
 
+            $(eParent).trigger('mouseout');
+
             var that = this;
             $(eSelectedPiece).addClass('moving');
             $(eSelectedPiece).animate({
                 bottom: iYOffset,
                 left: iXOffset
-            }, 500, function() {
+            }, 5000, function() {
                 $(eSelectedPiece).css('bottom', 0);
                 $(eSelectedPiece).css('left', 0);
                 $(eSelectedPiece).removeClass('moving');
@@ -67,9 +77,27 @@ function bindPieceEvents() {
                 eParent.html('');
 
                 removeHighlighting();
+
+                // Swipsy swopsy.
+                changeTurn();
             });
         }
     });
+}
+
+function changeTurn() {
+    iTurnNum++;
+    bWhiteTurn = !bWhiteTurn;
+
+    var sTarget = bWhiteTurn ? "white" : "black";
+ 
+    if ( bWhiteTurn ) {
+        var iTurn = parseInt($('#turnNumber').text());
+        iTurn++;
+        $('#turnNumber').text(iTurn);
+    }
+
+    $('#playerTurn').text(sTarget);  
 }
 
 function highlightValidMoves(ePiece, aValidMoves) {

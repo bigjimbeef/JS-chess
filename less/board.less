@@ -30,7 +30,14 @@
 
 h1 {
     .center;
-    margin: 20px 0;
+    margin: 10px 0;
+}
+h3, p {
+    .center;
+}
+
+#playerTurn {
+    font-weight: bold;
 }
 
 #colour-selector {
@@ -61,7 +68,7 @@ h1 {
 
         position: relative;
 
-        &:hover {
+        &.hover {
             .hover;
         }
 
@@ -95,7 +102,7 @@ h1 {
 }
 
 #board.blue {
-    div.col:hover {
+    div.col.hover {
         .hoverBlue;
     }
     div.row {
@@ -123,7 +130,7 @@ h1 {
 }
 
 #board.red {
-    div.col:hover {
+    div.col.hover {
         .hoverRed;
     }
     div.row {
