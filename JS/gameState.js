@@ -1,7 +1,3 @@
-function debug() {
-    console.log(arguments);
-}
-
 bWhiteTurn = true;
 iTurnNum = 0;
 
@@ -24,9 +20,9 @@ function bindPieceEvents() {
         }
 
         if ( !$('#piece-selection').data('selected') ) {
-            debug("There is a piece");
+            console.log("There is a piece");
 
-            var aValidMoves = $(this).getValidMoves();
+            var aValidMoves = $(this).getValidMoves(true);
 
             if ( aValidMoves.length > 0 ) {
                 // Highlight the cells indicated by these moves.
@@ -167,8 +163,6 @@ function highlightValidMoves(ePiece, aValidMoves) {
 }
 
 function highlightSingleMove(ePiece, move) {
-    console.log(move);
-
     if ( typeof move.distance != "undefined" ) {
         var iDistance = move.distance;
         var rowCol = getCellRC($(ePiece));
@@ -189,4 +183,121 @@ function removeHighlighting() {
     $('#board .col.highlight').removeClass('highlight hover');
 
     $('#piece-selection').data('selected', null);
+}
+
+function getAllMoves(sColour) {
+    var dStart = new Date();
+    console.log("Start:", dStart.getMilliseconds())
+
+    var ePieces = $('#board .piece.' + sColour);
+
+    var moves = {};
+    _.each(ePieces, function(v,i) {
+        var sPiece = $(v).data('piece');
+        
+        if ( _.isUndefined(moves[sPiece]) ) {
+            moves[sPiece] = [];
+        }
+
+        moves[sPiece] = moves[sPiece].concat($(v).getValidMoves());
+    });
+
+    console.log("These are the valid moves.", moves);
+
+    var dEnd = new Date();
+    console.log("End:", dEnd.getMilliseconds())
+
+    return moves;
+}
+
+function getThreatenedPieces(moves) {
+    // Check for all moves that are threatening a piece.
+    var aThreatMoves = [];
+    _.each( moves, function(v,i) { 
+        _.each( v, function(val, idx) { 
+            if ( val.details.threatened_piece ) {
+                aThreatMoves.push(val.details.threatened_piece);
+            }
+        }); 
+    });
+
+    console.log("These pieces are threatened:", aThreatMoves);
+
+    return aThreatMoves;
+}
+
+function getCheckMoves(aThreatMoves) {
+    var bCheck = false;
+    _.each(aThreatMoves, function(v,i) {
+        if ( v == "king" ) {
+            bCheck = true;
+            // Get out as fast as possible!
+            return;
+        }
+    });
+
+    return bCheck;
+}
+
+function checkForCheck(sColour) {
+    // Get all possible moves.
+    var moves = getAllMoves(sColour);
+
+    // Get all moves that threaten a piece.
+    var aThreatMoves = getThreatenedPieces(moves);
+
+    // Get all moves which threaten the King specifically.
+    var bCheck = getCheckMoves(aThreatMoves);
+
+    return bCheck;
+}
+
+function simulateAllMoves(piece, aMoveList, sColour) {
+    var aToRemove = [];
+    _.each(aMoveList, function(v,i) {
+        var move = v.details;
+        var rowCol = getCellRC(piece);
+
+        var newPos = {};
+        if ( piece.data('piece') != "knight" ) {
+            newPos = offsetMove(rowCol, v.details.direction, v.details.distance);
+        }
+        else {
+            newPos = jumpOffset(rowCol, v.details.rowDistance, v.details.colDistance);
+        }
+
+        var bCheck = simulateSingleMove(piece, newPos, sColour);
+        if ( bCheck ) {
+            aToRemove.push(v);
+        }
+    });
+
+    for( var i = 0; i < aMoveList.length; ++i ) {
+        if ( _.indexOf(aToRemove, aMoveList[i]) != -1 ) {
+            console.log("1adasd");
+            delete aMoveList[i];
+        }
+    }
+
+    return aMoveList;
+}
+
+function simulateSingleMove(piece, newRowCol, sColour) {
+    var eParent = $(piece).parent();
+    var eCell = getBoardCell(newRowCol.row, newRowCol.col);
+
+    // Clone the current piece.
+    var oData = $(piece).data();
+    var ePiece = $(piece).clone(true, true);
+    
+    eCell.html(ePiece);
+
+    // Now we check to see if we're in check.
+    var sOther = ( sColour == "white" ) ? "black" : "white";
+    var bCheck = checkForCheck(sOther);
+
+    // Now go back to where we were.
+    eCell.html('');
+
+    return bCheck;
 }

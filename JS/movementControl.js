@@ -1,29 +1,31 @@
-function Move(sDirection, zDistance) {
+function Move(sDirection, zDistance, sThreatenedPiece) {
     if ( _.isArray(zDistance) ) {
         this.details = {
             rowDistance: zDistance[0],
-            colDistance: zDistance[1]
+            colDistance: zDistance[1],
+            threatened_piece: sThreatenedPiece
         }
     }
     else {
         this.details = {
             direction: sDirection,
-            distance: zDistance
+            distance: zDistance,
+            threatened_piece: sThreatenedPiece
         }
     }
 }
 Move.prototype.getMoveDetails = function() {
     return this.details;
 }
+Move.prototype.setThreatenedPiece = function(sPiece) {
+    this.details.threatened_piece = sPiece;
+}
 
-$.fn.getValidMoves = function() {
+$.fn.getValidMoves = function(bSimulate) {
     var sPieceType = $(this).data('piece');
     var sColour = $(this).data('col');
     var bWhite = sColour == "white";
     var rowCol = getCellRC(this);
-
-    debug(sPieceType, this);
-    debug(sColour, this);
 
     var aValidMoves = [];
     switch ( sPieceType ) {
@@ -48,6 +50,13 @@ $.fn.getValidMoves = function() {
             break;
         default:
             break; 
+    }
+
+    if ( bSimulate ) {
+        // After we've determined the valid moves, we need to check for check.
+        // We do this by simulating the positions of each valid move, and checking if it puts us in check.
+        aValidMoves = simulateAllMoves($(this), aValidMoves, sColour);
+        aValidMoves = _.without(aValidMoves, undefined);
     }
 
     // Now return the list of reasonable moves.
@@ -137,6 +146,12 @@ function checkMoveResult(rowCol, move, bWhite, bAttack) {
     return checkCell(offset, bWhite, bAttack);
 }
 
+function isThreat(sInput) {
+    var zMatch = sInput.match(/^X_(.*)/);
+
+    return zMatch != null ? zMatch[1] : false;
+}
+
 function checkCell(offset, bWhite, bAttack) {
     var eCell = getBoardCell(offset.row, offset.col);
     var ePiece = eCell.children('.piece');
@@ -147,7 +162,6 @@ function checkCell(offset, bWhite, bAttack) {
         return "invalid";
     }
 
-    // TODO: Check for check!
     if ( ePiece.length == 0 ) {
         return "valid";
     }
@@ -155,7 +169,7 @@ function checkCell(offset, bWhite, bAttack) {
         var bHasEnemy = ePiece.data('col') != sOurColour;
 
         if ( bAttack && bHasEnemy ) {
-            return "take";
+            return "X_" + ePiece.data('piece');
         }
 
         return "invalid";
@@ -190,15 +204,19 @@ function pawnTakes(rowCol, bWhite) {
     // Have we already moved? (we need to consider en-passant)
     if ( bWhite && rowCol.row == 2 ||
         !bWhite && rowCol.row == 7 ) {
-
+        // TODO: En passant.
     }
 
     var aDirections = bWhite ? ["upleft", "upright"] : ["downleft", "downright"];
     for (var i = 0; i < aDirections.length; ++i ) {
         var move = new Move(aDirections[i], 1);
         var sResult = checkMoveResult(rowCol, move.getMoveDetails(), bWhite, true);
-        if ( sResult == 'take' ) {
+        var zPiece = isThreat(sResult);
+
+        if ( _.isString(zPiece) ) {
+            move.setThreatenedPiece(zPiece);
             aValidMoves.push(move);
+            break;
         }
     };
 
@@ -217,9 +235,11 @@ function getValidLongMoves(aDirections, rowCol, bWhite, bKing) {
         for ( var j = 1; j < iLength; ++j ) {
             var move = new Move(aDirections[i], j);
             var sResult = checkMoveResult(rowCol, move.getMoveDetails(), bWhite, true);
-            if ( sResult == 'valid' || sResult == 'take') {
+            if ( sResult == 'valid' || isThreat(sResult) ) {
                 aValidMoves.push(move);
-                if ( sResult == 'take' ) {
+                var zPiece = isThreat(sResult);
+                if ( _.isString(zPiece) ) {
+                    move.setThreatenedPiece(zPiece);
                     break;
                 }
             }
@@ -264,12 +284,12 @@ function knightMoves(rowCol, bWhite) {
     var aOffsets = [
         [1,-2],[2,-1],[2,1],[1,2],
         [-1,-2],[-2,-1],[-2,1],[-1,2]
-    ]
+    ];
 
     for ( var i = 0; i < aOffsets.length; ++i ) {
         var move = new Move(null, aOffsets[i]);
         var sResult = checkJumpMove(rowCol, move.getMoveDetails().rowDistance, move.getMoveDetails().colDistance, bWhite);
-        if ( sResult == 'valid' || sResult == 'take' ) {
+        if ( sResult == 'valid' || isThreat(sResult) ) {
            aValidMoves.push(move);         
        }
     }

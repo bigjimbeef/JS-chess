@@ -12,7 +12,7 @@ function addPieces(bWhite) {
     }
 
     var sColour = bWhite ? "white" : "black";
-    debug("Adding pieces to the board for " + sColour + "...");
+    console.log("Adding pieces to the board for " + sColour + "...");
 
     var iBackRow = bWhite ? 1 : 8;
     var iFrontRow = bWhite ? 2 : 7;

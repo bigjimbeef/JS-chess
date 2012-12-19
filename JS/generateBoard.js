@@ -4,7 +4,7 @@ NUM_ROWS = 8;
 NUM_COLS = 8;
 
 function generateBoard() {
-    debug("Generating the board...");
+    console.log("Generating the board...");
 
     var eBoard = $('#board');
 

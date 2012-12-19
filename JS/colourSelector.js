@@ -1,5 +1,5 @@
 $(document).ready(function() {
-    debug("Setting up colour selection...");
+    console.log("Setting up colour selection...");
 
     initSelector();
 });
