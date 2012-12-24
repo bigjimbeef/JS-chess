@@ -1,0 +1,6 @@
+* Ensure you can't move yourself into a checking position
+* Checkmate
+* Castling
+* Promotion
+* En passant
+* Stop pawn jumping (pawn moving 2 when there is a piece in front of them)

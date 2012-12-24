@@ -12,7 +12,29 @@ $(document).ready(function() {
     bindPieceEvents();
 });
 
+function getSelectedPiece() {
+    var zPiece = $('#piece-selection').data('selected');
+
+    return zPiece;
+}
+
+function isPlayablePiece(ePiece) {
+    var sColor = $(ePiece).data('col');
+
+    return ( bWhiteTurn && sColor == "white" || !bWhiteTurn && sColor == "black" );
+}
+
+function getPlayerPieces() {
+    var sTarget = bWhiteTurn ? "white" : "black";
+    return $('#board .piece.' + sTarget);
+}
+function getOpponentPieces() {
+    var sTarget = bWhiteTurn ? "black" : "white";
+    return $('#board .piece.' + sTarget);
+}
+
 function bindPieceEvents() {
+    /*    
     $('#board').on('click', '.piece', function() {
         if ( bWhiteTurn && $(this).data('col') == "black"
          || !bWhiteTurn && $(this).data('col') == "white" ) {
@@ -35,10 +57,75 @@ function bindPieceEvents() {
         else if ( $('#piece-selection').data('selected') ==  this ) {
             console.log("Clicked same one...");
 
-            removeHighlighting();
+            tidyBoard();
         }
     });
+    */
 
+    function revertElement(zDropped) {
+        var bDropped = zDropped.length > 0;
+
+        // We're selecting a new piece.
+        if ( !bDropped ) {
+            tidyBoard();
+        }
+
+        return !bDropped;        
+    }
+
+    // Set the pieces to be draggable.
+    $('#board .piece').draggable({
+        revert: revertElement,
+        start: function(){
+            // Set a z-index on the piece to ensure it's in front.
+            $(this).addClass('moving');
+
+            var aValidMoves = $(this).getValidMoves(true);
+
+            if ( aValidMoves.length > 0 ) {
+                // Highlight the cells indicated by these moves.
+                highlightValidMoves(this, aValidMoves);
+                
+                // We have this piece selected.
+                $('#piece-selection').data('selected', this); 
+            }
+        },
+        stop: function() {
+            // Z-index undone.
+            $(this).removeClass('moving');
+        },
+        // Centralise the piece to the cursor
+        cursorAt: {
+            top: 25,
+            left: 25
+        }
+    });
+    // Update which pieces are currently draggable.
+    getPlayerPieces().draggable('enable');
+    getOpponentPieces().draggable('disable');
+
+    /*
+    $('#board').on('mousedown', '.piece', function() {
+        console.log("MOUSE DOWN");
+
+        if ( bWhiteTurn && $(this).data('col') == "black"
+         || !bWhiteTurn && $(this).data('col') == "white" ) {
+            return;
+        }
+
+        var aValidMoves = $(this).getValidMoves(true);
+
+        if ( aValidMoves.length > 0 ) {
+            // Highlight the cells indicated by these moves.
+            highlightValidMoves(this, aValidMoves);
+            
+            // We have this piece selected.
+            $('#piece-selection').data('selected', this); 
+        }
+    });
+*/
+
+    /*
     // This represents the user clicking on a valid move square for their piece.
     $('#board').on('click', '.highlight', function() {
         if ( $('#piece-selection').data('selected') ) {
@@ -60,7 +147,7 @@ function bindPieceEvents() {
             var iYOffset = iRowDiff * 52.5;
 
             $(eParent).trigger('mouseout');
-            removeHighlighting();
+            tidyBoard();
 
             var that = this;
             $(eSelectedPiece).addClass('moving');
@@ -81,6 +168,7 @@ function bindPieceEvents() {
             });
         }
     });
+    */
 }
 
 function getRowColAsNotation(rowCol) {
@@ -149,7 +237,11 @@ function changeTurn() {
         $('#turnNumber').text(iTurn);
     }
 
-    $('#playerTurn').text(sTarget);  
+    $('#playerTurn').text(sTarget);
+
+    // Update which pieces are currently draggable.
+    getPlayerPieces().draggable('enable');
+    getOpponentPieces().draggable('disable');
 }
 
 function highlightValidMoves(ePiece, aValidMoves) {
@@ -177,11 +269,35 @@ function highlightSingleMove(ePiece, move) {
 
     var eMoveTarget = getBoardCell(rowCol.row, rowCol.col);
     eMoveTarget.addClass('highlight');
+
+    eMoveTarget.droppable({
+        drop: function(event, ui) {
+            placePiece($(ui.draggable), $(this));
+        }
+    });
 }
 
-function removeHighlighting() {
-    $('#board .col.highlight').removeClass('highlight hover');
+// Main function for placing a piece and ending the turn.
+function placePiece(ePiece, eTarget) {
+    $(eTarget).html($(ePiece));
 
+    // Center the piece after jQuery UI messes with inline styles in dragging it.
+    $(ePiece).css({
+        top: 0,
+        left: 0
+    });
+
+    // Remove the highlights and disable droppables.
+    tidyBoard();
+
+    // Swipsy swopsy.
+    changeTurn();
+}
+
+function tidyBoard() {
+    // Remove droppable.
+    $('#board .col.highlight').droppable("destroy");
+    $('#board .col').removeClass('highlight hover hover-black');
     $('#piece-selection').data('selected', null);
 }
 
@@ -274,7 +390,6 @@ function simulateAllMoves(piece, aMoveList, sColour) {
 
     for( var i = 0; i < aMoveList.length; ++i ) {
         if ( _.indexOf(aToRemove, aMoveList[i]) != -1 ) {
-            console.log("1adasd");
             delete aMoveList[i];
         }
     }
@@ -285,6 +400,8 @@ function simulateAllMoves(piece, aMoveList, sColour) {
 function simulateSingleMove(piece, newRowCol, sColour) {
     var eParent = $(piece).parent();
     var eCell = getBoardCell(newRowCol.row, newRowCol.col);
+
+    var eCurrentPiece = eCell.find('.piece').clone(true, true);
 
     // Clone the current piece.
     var oData = $(piece).data();
@@ -298,6 +415,7 @@ function simulateSingleMove(piece, newRowCol, sColour) {
 
     // Now go back to where we were.
     eCell.html('');
+    eCell.append(eCurrentPiece);
 
     return bCheck;
 }

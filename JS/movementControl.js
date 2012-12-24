@@ -216,7 +216,6 @@ function pawnTakes(rowCol, bWhite) {
         if ( _.isString(zPiece) ) {
             move.setThreatenedPiece(zPiece);
             aValidMoves.push(move);
-            break;
         }
     };
 

@@ -24,10 +24,8 @@ function generateBoard() {
 
             $(eCol).hover(
                 function(event) {
-                    if ( !$(event.target).hasClass('piece') ) {
-                        var sTarget = $('#playerTurn').text() != 'black' ? "hover" : "hover-black";
-                        $(this).addClass(sTarget);                       
-                    }
+                    var sTarget = $('#playerTurn').text() != 'black' ? "hover" : "hover-black";
+                    $(this).addClass(sTarget);                       
                 }, 
                 function() {
                     $(this).removeClass('hover hover-black');
