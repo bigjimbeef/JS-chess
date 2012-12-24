@@ -34,34 +34,6 @@ function getOpponentPieces() {
 }
 
 function bindPieceEvents() {
-    /*    
-    $('#board').on('click', '.piece', function() {
-        if ( bWhiteTurn && $(this).data('col') == "black"
-         || !bWhiteTurn && $(this).data('col') == "white" ) {
-            return;
-        }
-
-        if ( !$('#piece-selection').data('selected') ) {
-            console.log("There is a piece");
-
-            var aValidMoves = $(this).getValidMoves(true);
-
-            if ( aValidMoves.length > 0 ) {
-                // Highlight the cells indicated by these moves.
-                highlightValidMoves(this, aValidMoves);
-                
-                // We have this piece selected.
-                $('#piece-selection').data('selected', this); 
-            }
-        }
-        else if ( $('#piece-selection').data('selected') ==  this ) {
-            console.log("Clicked same one...");
-
-            tidyBoard();
-        }
-    });
-    */
-
     function revertElement(zDropped) {
         var bDropped = zDropped.length > 0;
 
@@ -79,6 +51,8 @@ function bindPieceEvents() {
         start: function(){
             // Set a z-index on the piece to ensure it's in front.
             $(this).addClass('moving');
+
+            $('#board .col').removeClass('hover hover-black');
 
             var aValidMoves = $(this).getValidMoves(true);
 
@@ -103,72 +77,6 @@ function bindPieceEvents() {
     // Update which pieces are currently draggable.
     getPlayerPieces().draggable('enable');
     getOpponentPieces().draggable('disable');
-
-    /*
-    $('#board').on('mousedown', '.piece', function() {
-        console.log("MOUSE DOWN");
-
-        if ( bWhiteTurn && $(this).data('col') == "black"
-         || !bWhiteTurn && $(this).data('col') == "white" ) {
-            return;
-        }
-
-        var aValidMoves = $(this).getValidMoves(true);
-
-        if ( aValidMoves.length > 0 ) {
-            // Highlight the cells indicated by these moves.
-            highlightValidMoves(this, aValidMoves);
-            
-            // We have this piece selected.
-            $('#piece-selection').data('selected', this); 
-        }
-    });
-*/
-
-    /*
-    // This represents the user clicking on a valid move square for their piece.
-    $('#board').on('click', '.highlight', function() {
-        if ( $('#piece-selection').data('selected') ) {
-            var eSelectedPiece = $($('#piece-selection').data('selected'));
-            var eParent = eSelectedPiece.parent();
-
-            var pieceRC = getCellRC($(eSelectedPiece));
-            $(this).append('<div></div>');
-            var targetRC = getCellRC($(this).find('div'));
-            $(this).find('div').remove();
-
-            // Generate the move.
-            generateMoveNotation(pieceRC, targetRC)
-
-            var iRowDiff = targetRC.row - pieceRC.row;
-            var iColDiff = targetRC.col - pieceRC.col;
-
-            var iXOffset = iColDiff * 52.5;
-            var iYOffset = iRowDiff * 52.5;
-
-            $(eParent).trigger('mouseout');
-            tidyBoard();
-
-            var that = this;
-            $(eSelectedPiece).addClass('moving');
-            $(eSelectedPiece).animate({
-                bottom: iYOffset,
-                left: iXOffset
-            }, 500, function() {
-                $(eSelectedPiece).css('bottom', 0);
-                $(eSelectedPiece).css('left', 0);
-                $(eSelectedPiece).removeClass('moving');
-                $(eSelectedPiece).stop();
-
-                $(that).append(eSelectedPiece.clone(true));
-                eParent.html('');
-
-                // Swipsy swopsy.
-                changeTurn();
-            });
-        }
-    });
-    */
 }
 
 function getRowColAsNotation(rowCol) {
@@ -273,6 +181,13 @@ function highlightSingleMove(ePiece, move) {
     eMoveTarget.droppable({
         drop: function(event, ui) {
             placePiece($(ui.draggable), $(this));
+
+            // TODO: MOVE NOTATION
+            // generateMoveNotation();
+        },
+        hoverClass: function(a,b,c) {
+            var sClass = "phantom " + $(ePiece).data('col') + " " + $(ePiece).data('piece');
+            return sClass;
         }
     });
 }

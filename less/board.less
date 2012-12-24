@@ -1,19 +1,19 @@
 @dark: #BBBBBB;
 @light: #FFFFFF;
 .hover {
-    background: #00FF00 !important;
+    box-shadow: inset 0 0 10px 3px #00FF00;
 }
 
 @darkblue: #88AACC;
 @lightblue: #AADDEE;
 .hoverBlue {
-    background: #FF0000 !important;
+    box-shadow: inset 0 0 10px 3px #FF0000;
 }
 
 @darkred: #EE7777;
 @lightred: #FFAA99;
 .hoverRed {
-    background: #0000FF !important;
+    box-shadow: inset 0 0 10px 3px #0000FF;
 }
 
 .auto-margin {
@@ -66,6 +66,11 @@ h3, p {
     }
 }
 
+.fifty-fifty {
+    width: 50px;
+    height: 50px;
+}
+
 #board {
     float: left;
 
@@ -76,13 +81,15 @@ h3, p {
 
     .border;
 
-    div.col {
-        width: 50px;
-        height: 50px;
-
+    div.separator {
+        .fifty-fifty;
         float: left;
 
         .border;
+    }
+
+    div.col {
+        .fifty-fifty;
 
         position: relative;
 
@@ -94,7 +101,53 @@ h3, p {
         }
 
         &.highlight {
-            background: pink !important;
+            box-shadow: inset 0 0 3px 3px #00FF00;
+        }
+
+        &.phantom {
+            opacity: 0.7;
+
+            &.black {
+                &.pawn {
+                    background-image: url(../img/blackPawn.png) !important;
+                }
+                &.rook {
+                    background-image: url(../img/blackRook.png) !important;
+                }
+                &.knight {
+                    background-image: url(../img/blackKnight.png) !important;
+                }
+                &.bishop {
+                    background-image: url(../img/blackBishop.png) !important;
+                }
+                &.queen {
+                    background-image: url(../img/blackQueen.png) !important;
+                }
+                &.king {
+                    background-image: url(../img/blackKing.png) !important;
+                }
+            }
+
+            &.white {
+                &.pawn {
+                    background-image: url(../img/whitePawn.png) !important;
+                }
+                &.rook {
+                    background-image: url(../img/whiteRook.png) !important;
+                }
+                &.knight {
+                    background-image: url(../img/whiteKnight.png) !important;
+                }
+                &.bishop {
+                    background-image: url(../img/whiteBishop.png) !important;
+                }
+                &.queen {
+                    background-image: url(../img/whiteQueen.png) !important;
+                }
+                &.king {
+                    background-image: url(../img/whiteKing.png) !important;
+                }
+            }
         }
     }
     

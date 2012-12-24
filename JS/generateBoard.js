@@ -17,6 +17,8 @@ function generateBoard() {
 
         for ( var j = 1; j <= NUM_COLS; ++j )
         {
+            var eColContainer = $("<div class='separator'></div>");
+
             var eCol = $("<div class='col col-" + j + "'></div>");
             sOddEven = j % 2 == 0 ? "even" : "odd";
             eCol.addClass(sOddEven);
@@ -32,7 +34,8 @@ function generateBoard() {
                 }
             );
 
-            eRow.append(eCol);
+            eColContainer.append(eCol);
+            eRow.append(eColContainer);
         }
 
         eBoard.append(eRow);

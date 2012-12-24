@@ -67,7 +67,7 @@ function getCellRC(eCell) {
     var eCol= eCell.parent();
     var iCol = $(eCol).data('column');
 
-    var eRow= eCol.parent();
+    var eRow= eCol.parent().parent();
     var iRow = $(eRow).data('row');
 
     return {
